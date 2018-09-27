@@ -68,8 +68,11 @@ class Controller(polyinterface.Controller):
         LOGGER.info('Calling discover')
         self.discover()
 
-        LOGGER.info('starting thread for UDP data')
-        threading.Thread(target = self.web_server).start()
+        LOGGER.info('starting web server thread')
+        self.data_thread = threading.Thread(target = self.web_server)
+        self.data_thread.daemon = True
+        self.data_thread.start()
+
         #for node in self.nodes:
         #       LOGGER.info (self.nodes[node].name + ' is at index ' + node)
         LOGGER.info('WeatherPoly Node Server Started.')
@@ -611,8 +614,10 @@ class LightningNode(polyinterface.Node):
 class weather_data_handler(http.server.BaseHTTPRequestHandler):
     # handle get requests
     def do_GET(self):
-        message = "<head></head><body>Success data submission</body>\n"
+        message = "<head></head><body>Successful data submission</body>\n"
 
+        # may want to move this below the response so we don't make
+        # the client wait.
         self.process_data(self.path)
 
         self.send_response(200)  # OK
