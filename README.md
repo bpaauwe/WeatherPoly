@@ -5,7 +5,16 @@ This is the local weather station poly for the Universal Devices ISY994i](https:
 (c) 2018 Robert Paauwe
 MIT license.
 
-This node server is intended to support various weather software packages. TBD
+This node server is intended to support various weather software packages. 
+Currently, the following software packages are supported:
+   * Cumulus - http://www.sandaysoft.com/
+   * Weather Display
+   * MeteoBridge
+
+The WeatherPoly node server runs a simple web server process that listens
+for data packets from your weather software package.   The packets are parsed
+and sent on to the ISY.  This all happens on your local network, without
+any dependency on cloud/web based services.
 
 ## Installation
 
@@ -15,7 +24,7 @@ This node server is intended to support various weather software packages. TBD
 3. Add NodeServer in Polyglot Web
    * After the install completes, Polyglot will reboot your ISY, you can watch the status in the main polyglot log.
 4. Once your ISY is back up open the Admin Console.
-5. Configure - TBD
+5. Configure the node server field mapping (see below).
 
 ### Node Settings
 The settings for this node are:
@@ -31,6 +40,107 @@ The settings for this node are:
    *   metric - SI / metric units
    *   us     - units generally used in the U.S.
    *   uk     - units generally used in the U.K.
+
+### Weather software configuration
+Most weather software packages have a way to send data to a web based weather
+service.  This node server takes advantage of that and acts like a web based
+weather serivce. It starts a simple local web server on the port specified
+in the configuration. It listens for basic HTTP GET requests from from your
+weather software and parses the results.  Most of the weather software 
+packages allow you to customize the data that is sent to a user defined web
+service. Below is some guidence on how to configure the weather software
+supported by this node server.  Other weather software may work if it can be
+configured in a similar maner.
+
+#### Cumulus software by SandaySoft
+Under internet settings, there is an option for Custom HTTP.  Configure the URL
+with your Polyglot's IP/Host and the port number specified above. I.E.
+
+  http://192.168.1.12:8080
+
+Append to that "cumulus" followed by data value names, tags for the weather
+data you want to track.  You'll use the same value names in the node server
+configuration to map the data to ISY node values.  As an example:
+
+  http://192.168.1.12:8080/cumulus?temp=<#temp>&pressure=<#press>
+
+Then in your node server configuration you'll map:
+
+  temperature-main = temp
+  pressure-station = pressure
+
+
+#### MeteoBridge
+Set up a new weather Network using the Home Weather Station option and enter
+your node server IP/Host and port number specified above as the API URL. For
+example:
+
+   API URL: http://192.168.1.12:8080/
+
+MeteoBridge has a pre-defined template that it uses so send data to this 
+service.  The node server will map the fields from this as described in the
+mapping below.
+
+#### Node and Driver values
+The complete list of available node/driver values that can be mapped are:
+```
+        temperature-main
+        temperature-dewpoint
+        temperature-windchill
+        temperature-heatindex
+        temperature-apparent
+        temperature-inside
+        temperature-extra1
+        temperature-extra2
+        temperature-extra3
+        temperature-extra4
+        temperature-extra5
+        temperature-extra6
+        temperature-extra7
+        temperature-extra8
+        temperature-extra9
+        temperature-extra10
+        temperature-max
+        temperature-min
+        temperature-soil
+
+        humidiy-main
+        humidiy-inside
+        humidiy-extra1
+        humidiy-extra2
+        humidiy-extra3
+        humidiy-extra4
+        humidiy-extra5
+
+        pressure-station
+        pressure-sealevel
+        pressure-trend
+
+        wind-windspeed
+        wind-winddir
+        wind-gustspeed
+        wind-gustdir
+        wind-lullspeed
+        wind-avgwindspeed
+
+        rain-rate
+        rain-hourly
+        rain-daily
+        rain-weekly
+        rain-monthly
+        rain-yearly
+        rain-maxrate
+        rain-yesterday
+
+        light-uv
+        light-solar_radiation
+        light-illuminace
+	light-solar_percent
+
+        lightning-strikes
+        lightning-distance
+```
+
 
 ## Requirements
 
