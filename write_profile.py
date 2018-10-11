@@ -128,88 +128,97 @@ def write_profile(logger, temperature_list, humidity_list, pressure_list,
         return False
 
     logger.info("{0} Writing profile/nodedef/nodedefs.xml".format(pfx))
-    nodedef = open("profile/nodedef/nodedefs.xml", "w")
-    nodedef.write("<nodeDefs>\n")
+    if not os.path.exists("profile/nodedef"):
+        try:
+            os.makedirs("profile/nodedef")
+        except:
+            LOGGER.error('unable to create node definition directory.')
 
-    # First, write the controller node definition
-    nodedef.write(NODEDEF_TMPL % ('WeatherDisplay', 'ctl'))
-    nodedef.write("    <sts>\n")
-    nodedef.write("      <st id=\"ST\" editor=\"bool\" />\n")
-    nodedef.write("      <st id=\"GV0\" editor=\"I_VOLTS\" />\n")
-    nodedef.write("      <st id=\"GV1\" editor=\"I_VOLTS\" />\n")
-    nodedef.write("    </sts>\n")
-    nodedef.write("    <cmds>\n")
-    nodedef.write("      <sends />\n")
-    nodedef.write("      <accepts>\n")
-    nodedef.write("        <cmd id=\"DISCOVER\" />\n")
-    nodedef.write("        <cmd id=\"REMOVE_NOTICES_ALL\" />\n")
-    nodedef.write("        <cmd id=\"UPDATE_PROFILE\" />\n")
-    nodedef.write("      </accepts>\n")
-    nodedef.write("    </cmds>\n")
-    nodedef.write("  </nodeDef>\n\n")
+    try:
+        nodedef = open("profile/nodedef/nodedefs.xml", "w")
+        nodedef.write("<nodeDefs>\n")
 
-    # Need to translate temperature.main into <st id="ST" editor="TEMP_C" />
-    # and     translate temperature.extra1 into <st id="GV5" editor="TEMP_C" />
-
-    if (len(temperature_list) > 0):
-        nodedef.write(NODEDEF_TMPL % ('temperature', '139T'))
+        # First, write the controller node definition
+        nodedef.write(NODEDEF_TMPL % ('WeatherDisplay', 'ctl'))
         nodedef.write("    <sts>\n")
-        for t in temperature_list:
-            nodedef.write(STATUS_TMPL % (TEMP_DRVS[t], temperature_list[t]))
+        nodedef.write("      <st id=\"ST\" editor=\"bool\" />\n")
+        nodedef.write("      <st id=\"GV0\" editor=\"I_VOLTS\" />\n")
+        nodedef.write("      <st id=\"GV1\" editor=\"I_VOLTS\" />\n")
         nodedef.write("    </sts>\n")
-        nodedef.write("  </nodeDef>\n")
+        nodedef.write("    <cmds>\n")
+        nodedef.write("      <sends />\n")
+        nodedef.write("      <accepts>\n")
+        nodedef.write("        <cmd id=\"DISCOVER\" />\n")
+        nodedef.write("        <cmd id=\"REMOVE_NOTICES_ALL\" />\n")
+        nodedef.write("        <cmd id=\"UPDATE_PROFILE\" />\n")
+        nodedef.write("      </accepts>\n")
+        nodedef.write("    </cmds>\n")
+        nodedef.write("  </nodeDef>\n\n")
 
-    if (len(humidity_list) > 0):
-        nodedef.write(NODEDEF_TMPL % ('humidity', '139H'))
-        nodedef.write("    <sts>\n")
-        for t in humidity_list:
-            nodedef.write(STATUS_TMPL % (HUMD_DRVS[t], humidity_list[t]))
-        nodedef.write("    </sts>\n")
-        nodedef.write("  </nodeDef>\n")
+        # Need to translate temperature.main into <st id="ST" editor="TEMP_C" />
+        # and     translate temperature.extra1 into <st id="GV5" editor="TEMP_C" />
 
-    if (len(pressure_list) > 0):
-        nodedef.write(NODEDEF_TMPL % ('pressure', '139P'))
-        nodedef.write("    <sts>\n")
-        for t in pressure_list:
-            nodedef.write(STATUS_TMPL % (PRES_DRVS[t], pressure_list[t]))
-        nodedef.write("    </sts>\n")
-        nodedef.write("  </nodeDef>\n")
+        if (len(temperature_list) > 0):
+            nodedef.write(NODEDEF_TMPL % ('temperature', '139T'))
+            nodedef.write("    <sts>\n")
+            for t in temperature_list:
+                nodedef.write(STATUS_TMPL % (TEMP_DRVS[t], temperature_list[t]))
+            nodedef.write("    </sts>\n")
+            nodedef.write("  </nodeDef>\n")
 
-    if (len(wind_list) > 0):
-        nodedef.write(NODEDEF_TMPL % ('wind', '139W'))
-        nodedef.write("    <sts>\n")
-        for t in wind_list:
-            nodedef.write(STATUS_TMPL % (WIND_DRVS[t], wind_list[t]))
-        nodedef.write("    </sts>\n")
-        nodedef.write("  </nodeDef>\n")
+        if (len(humidity_list) > 0):
+            nodedef.write(NODEDEF_TMPL % ('humidity', '139H'))
+            nodedef.write("    <sts>\n")
+            for t in humidity_list:
+                nodedef.write(STATUS_TMPL % (HUMD_DRVS[t], humidity_list[t]))
+            nodedef.write("    </sts>\n")
+            nodedef.write("  </nodeDef>\n")
 
-    if (len(rain_list) > 0):
-        nodedef.write(NODEDEF_TMPL % ('precipitation', '139R'))
-        nodedef.write("    <sts>\n")
-        for t in rain_list:
-            nodedef.write(STATUS_TMPL % (RAIN_DRVS[t], rain_list[t]))
-        nodedef.write("    </sts>\n")
-        nodedef.write("  </nodeDef>\n")
+        if (len(pressure_list) > 0):
+            nodedef.write(NODEDEF_TMPL % ('pressure', '139P'))
+            nodedef.write("    <sts>\n")
+            for t in pressure_list:
+                nodedef.write(STATUS_TMPL % (PRES_DRVS[t], pressure_list[t]))
+            nodedef.write("    </sts>\n")
+            nodedef.write("  </nodeDef>\n")
 
-    if (len(light_list) > 0):
-        nodedef.write(NODEDEF_TMPL % ('light', '139L'))
-        nodedef.write("    <sts>\n")
-        for t in light_list:
-            nodedef.write(STATUS_TMPL % (LITE_DRVS[t], light_list[t]))
-        nodedef.write("    </sts>\n")
-        nodedef.write("  </nodeDef>\n")
+        if (len(wind_list) > 0):
+            nodedef.write(NODEDEF_TMPL % ('wind', '139W'))
+            nodedef.write("    <sts>\n")
+            for t in wind_list:
+                nodedef.write(STATUS_TMPL % (WIND_DRVS[t], wind_list[t]))
+            nodedef.write("    </sts>\n")
+            nodedef.write("  </nodeDef>\n")
 
-    if (len(lightning_list) > 0):
-        nodedef.write(NODEDEF_TMPL % ('lightning', '139S'))
-        nodedef.write("    <sts>\n")
-        for t in lightning_list:
-            nodedef.write(STATUS_TMPL % (LTNG_DRVS[t], lightning_list[t]))
-        nodedef.write("    </sts>\n")
-        nodedef.write("  </nodeDef>\n")
+        if (len(rain_list) > 0):
+            nodedef.write(NODEDEF_TMPL % ('precipitation', '139R'))
+            nodedef.write("    <sts>\n")
+            for t in rain_list:
+                nodedef.write(STATUS_TMPL % (RAIN_DRVS[t], rain_list[t]))
+            nodedef.write("    </sts>\n")
+            nodedef.write("  </nodeDef>\n")
 
-    nodedef.write("</nodeDefs>")
+        if (len(light_list) > 0):
+            nodedef.write(NODEDEF_TMPL % ('light', '139L'))
+            nodedef.write("    <sts>\n")
+            for t in light_list:
+                nodedef.write(STATUS_TMPL % (LITE_DRVS[t], light_list[t]))
+            nodedef.write("    </sts>\n")
+            nodedef.write("  </nodeDef>\n")
 
-    nodedef.close()
+        if (len(lightning_list) > 0):
+            nodedef.write(NODEDEF_TMPL % ('lightning', '139S'))
+            nodedef.write("    <sts>\n")
+            for t in lightning_list:
+                nodedef.write(STATUS_TMPL % (LTNG_DRVS[t], lightning_list[t]))
+            nodedef.write("    </sts>\n")
+            nodedef.write("  </nodeDef>\n")
+
+        nodedef.write("</nodeDefs>")
+
+        nodedef.close()
+    except:
+        LOGGER.error('Failed to write node definition file.')
 
     # Update the profile version file with the info from server.json
     with open(VERSION_FILE, 'w') as outfile:
