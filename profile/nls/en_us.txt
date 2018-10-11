@@ -1,6 +1,6 @@
 # controller
-ND-WeatherDisplay-NAME = Weather Display
-ND-WeatherDisplay-ICON = Weather
+ND-WeatherPoly-NAME = Local Weather Information
+ND-WeatherPoly-ICON = Weather
 CMD-ctl-DISCOVER-NAME = Re-Discover
 CMD-ctl-UPDATE_PROFILE-NAME = Update Profile
 CMD-ctl-REMOVE_NOTICES_ALL-NAME = Remove Notices
