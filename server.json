@@ -8,13 +8,13 @@
     "notice": "Experimental",
     "shortPoll": "5",
     "longPoll": "60",
-    "profile_version": "0.1.0",
+    "profile_version": "0.1.1",
     "credits": [
     	{
     		"title": "WeatherPoly: Weather Data",
     		"author": "Bob Paauwe",
-    		"version": "0.1.0",
-    		"date": "October 9, 2018",
+    		"version": "0.1.1",
+    		"date": "October 11, 2018",
     		"source": "https://github.com/bpaauwe/WeatherPoly",
             "license": "https://github.com/bpaauwe/WeatherPoly/LICENSE"
 		}
