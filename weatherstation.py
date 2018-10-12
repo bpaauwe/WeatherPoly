@@ -682,8 +682,13 @@ class weather_data_handler(http.server.BaseHTTPRequestHandler):
             fields = data[key][0].split(' ')
             LOGGER.info('Data has %d fields' % len(fields))
             for f in self.node_map:
+                try:
+                    i = int(f)
+                except: 
+                    continue
+
                 m = self.node_map[f]
-                i = int(f)
+
                 try:
                     LOGGER.info('Field %s maps to %s / %s  set %s' % (f, m['node'], m['driver'], fields[i]))
                     self.nodes[m['node']].setDriver(m['driver'], float(fields[i]))
