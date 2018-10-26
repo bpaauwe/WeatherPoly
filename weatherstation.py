@@ -29,6 +29,7 @@ class Controller(polyinterface.Controller):
         self.primary = self.address
         self.port = 8080
         self.units = ""
+        self.in_units = ""
         self.temperature_list = {}
         self.humidity_list = {}
         self.pressure_list = {}
@@ -157,7 +158,7 @@ class Controller(polyinterface.Controller):
             LOGGER.info("Creating Temperature node")
             node = TemperatureNode(self, self.address, 'temperature',
                     'Temperatures')
-            node.SetUnits(self.units)
+            node.SetUnits(self.units, self.in_units)
             node.drivers = t_drvs;
             self.addNode(node)
         else:
@@ -176,7 +177,7 @@ class Controller(polyinterface.Controller):
         if len(p_drvs) > 0:
             LOGGER.info("Creating Pressure node")
             node = PressureNode(self, self.address, 'pressure', 'Barometric Pressure')
-            node.SetUnits(self.units)
+            node.SetUnits(self.units, self.in_units)
             node.drivers = p_drvs
             self.addNode(node)
         else:
@@ -186,7 +187,7 @@ class Controller(polyinterface.Controller):
         if len(w_drvs) > 0:
             LOGGER.info("Creating Wind node")
             node = WindNode(self, self.address, 'wind', 'Wind')
-            node.SetUnits(self.units)
+            node.SetUnits(self.units, self.in_units)
             node.drivers = w_drvs
             self.addNode(node)
         else:
@@ -196,7 +197,7 @@ class Controller(polyinterface.Controller):
         if len(r_drvs) > 0:
             LOGGER.info("Creating Precipitation node")
             node = PrecipitationNode(self, self.address, 'rain', 'Precipitation')
-            node.SetUnits(self.units)
+            node.SetUnits(self.units, self.in_units)
             node.drivers = r_drvs
             self.addNode(node)
         else:
@@ -215,7 +216,7 @@ class Controller(polyinterface.Controller):
         if len(s_drvs) > 0:
             LOGGER.info("Creating Lightning node")
             node = LightningNode(self, self.address, 'lightning', 'Lightning')
-            node.SetUnits(self.units)
+            node.SetUnits(self.units, self.in_units)
             node.drivers = s_drvs
             self.addNode(node)
         else:
@@ -241,6 +242,7 @@ class Controller(polyinterface.Controller):
         self.addCustomParam({
                     'Port': self.port,
                     'Units': self.units,
+                    'IncomingUnits': self.in_units,
                     })
 
         self.map_nodes(self.polyConfig)
@@ -267,6 +269,11 @@ class Controller(polyinterface.Controller):
             self.units = config['customParams']['Units']
         else:
             self.units = 'metric'
+
+        if 'IncomingUnits' in config['customParams']:
+            self.in_units = config['customParams']['IncomingUnits']
+        else:
+            self.in_units = 'metric'
 
     def map_nodes(self, config):
         # Build up our data mapping tables. The customParams keys will
@@ -392,8 +399,9 @@ class Controller(polyinterface.Controller):
             LOGGER.info('Web server failed to start.')
             self.server.socket.close()
 
-    def SetUnits(self, u):
+    def SetUnits(self, u, i):
         self.units = u
+        self.units_in = i
 
 
     id = 'WeatherPoly'
@@ -421,11 +429,14 @@ class TemperatureNode(polyinterface.Node):
     id = 'temperature'
     hint = 0xffffff
     units = 'metric'
+    units_in = 'metric'
     drivers = [ ]
 
-    def SetUnits(self, u):
+    def SetUnits(self, u, i):
         self.units = u
+        self.units_in = i
 
+    # Assumes temp in C
     def Dewpoint(self, t, h):
         b = (17.625 * t) / (243.04 + t)
         rh = h / 100.0
@@ -433,11 +444,13 @@ class TemperatureNode(polyinterface.Node):
         dewpt = (243.04 * (c + b)) / (17.625 - c - b)
         return round(dewpt, 1)
 
+    # Assumes temp in C and wind speed in m/s
     def ApparentTemp(self, t, ws, h):
         wv = h / 100.0 * 6.105 * math.exp(17.27 * t / (237.7 + t))
         at =  t + (0.33 * wv) - (0.70 * ws) - 4.0
         return round(at, 1)
 
+    # Assumes temp in C and wind speed in m/s
     def Windchill(self, t, ws):
         # really need temp in F and speed in MPH
         tf = (t * 1.8) + 32
@@ -450,6 +463,7 @@ class TemperatureNode(polyinterface.Node):
         else:
             return t
 
+    # Assumes temp in C
     def Heatindex(self, t, h):
         tf = (t * 1.8) + 32
         c1 = -42.379
@@ -469,10 +483,18 @@ class TemperatureNode(polyinterface.Node):
         else:
             return round((hi - 32) / 1.8, 1)
 
-    def setDriver(self, driver, value):
-        if (self.units == "us"):
-            value = (value * 1.8) + 32  # convert to F
+    # Convert temperature from incoming units to display units
+    def convert(self, value):
+        if self.units_in == 'us':
+            if self.units != 'us':
+                return round((value - 32) / 1.8, 2) # to C
+        else:
+            if self.units == 'us':
+                return round((value * 1.8) + 32, 2) # to F
+        return value
 
+    def setDriver(self, driver, value):
+        value = self.convert(value)
         super(TemperatureNode, self).setDriver(driver, round(value, 1), report=True, force=True)
 
 
@@ -481,10 +503,12 @@ class HumidityNode(polyinterface.Node):
     id = 'humidity'
     hint = 0xffffff
     units = 'metric'
+    units_in = 'metric'
     drivers = [{'driver': 'ST', 'value': 0, 'uom': 22}]
 
-    def SetUnits(self, u):
+    def SetUnits(self, u, i):
         self.units = u
+        self.units_in = i
 
     def setDriver(self, driver, value):
         super(HumidityNode, self).setDriver(driver, value, report=True, force=True)
@@ -493,12 +517,14 @@ class PressureNode(polyinterface.Node):
     id = 'pressure'
     hint = 0xffffff
     units = 'metric'
+    units_in = 'metric'
     drivers = [ ]
     mytrend = []
 
 
-    def SetUnits(self, u):
+    def SetUnits(self, u, i):
         self.units = u
+        self.units_in = i
 
     # convert station pressure in millibars to sealevel pressure
     def toSeaLevel(self, station, elevation):
@@ -534,11 +560,19 @@ class PressureNode(polyinterface.Node):
         self.mytrend.insert(0, current)
         return t
 
+    def convert(self, value):
+        if self.units_in == 'us':
+            if self.units != 'us':
+                return round(value / 0.02952998751, 3)
+        else:
+            if self.units == 'us':
+                return round(value * 0.02952998751, 3)
+        return value
+        
     # We want to override the SetDriver method so that we can properly
     # convert the units based on the user preference.
     def setDriver(self, driver, value):
-        if (self.units == 'us'):
-            value = round(value * 0.02952998751, 3)
+        value = self.convert(value)
         super(PressureNode, self).setDriver(driver, value, report=True, force=True)
 
 
@@ -546,21 +580,32 @@ class WindNode(polyinterface.Node):
     id = 'wind'
     hint = 0xffffff
     units = 'metric'
+    units_in = 'metric'
     drivers = [ ]
 
-    def SetUnits(self, u):
+    def SetUnits(self, u, i):
         self.units = u
+        self.units_in = i
+
+    def convert(self, value):
+        if self.units_in == 'us' or self.units_in == 'uk':
+            if self.units == 'metric':
+                return round(value * 1.609344, 2)
+        else:
+            if self.units == 'us' or self.units == 'uk':
+                return round(value / 1.609344, 2)
+        return value
 
     def setDriver(self, driver, value):
         if (driver == 'ST' or driver == 'GV1' or driver == 'GV3'):
-            if (self.units != 'metric'):
-                value = round(value / 1.609344, 2)
+            value = self.convert(value)
         super(WindNode, self).setDriver(driver, value, report=True, force=True)
 
 class PrecipitationNode(polyinterface.Node):
     id = 'precipitation'
     hint = 0xffffff
     units = 'metric'
+    units_in = 'metric'
     drivers = [ ]
     hourly_rain = 0
     daily_rain = 0
@@ -572,8 +617,9 @@ class PrecipitationNode(polyinterface.Node):
     prev_day = 0
     prev_week = 0
 
-    def SetUnits(self, u):
+    def SetUnits(self, u, i):
         self.units = u
+        self.units_in = i
 
     def hourly_accumulation(self, r):
         current_hour = datetime.datetime.now().hour
@@ -602,20 +648,30 @@ class PrecipitationNode(polyinterface.Node):
         self.weekly_rain += r
         return self.weekly_rain
 
+    def convert(self, value):
+        if self.units_in == 'us':
+            if self.units != 'us':
+                round(value / 0.03937, 2)
+        else:
+            if self.units == 'us':
+                round(value * 0.03937, 2)
+        return value
+
         
     def setDriver(self, driver, value):
-        if (self.units == 'us'):
-            value = round(value * 0.03937, 2)
+        value = self.convert(value)
         super(PrecipitationNode, self).setDriver(driver, value, report=True, force=True)
 
 class LightNode(polyinterface.Node):
     id = 'light'
     units = 'metric'
+    units_in = 'metric'
     hint = 0xffffff
     drivers = [ ]
 
-    def SetUnits(self, u):
+    def SetUnits(self, u, i):
         self.units = u
+        self.units_in = i
 
     def setDriver(self, driver, value):
         super(LightNode, self).setDriver(driver, value, report=True, force=True)
@@ -624,20 +680,34 @@ class LightningNode(polyinterface.Node):
     id = 'lightning'
     hint = 0xffffff
     units = 'metric'
+    units_in = 'metric'
     drivers = [ ]
 
-    def SetUnits(self, u):
+    def SetUnits(self, u, i):
         self.units = u
+        self.units_in = i
+
+    def convert(self, value):
+        if self.units_in == 'us' or self.units_in == 'uk':
+            if self.units == 'metric':
+                return round(value * 1.609344, 1)
+        else:
+            if self.units == 'us' or self.units == 'uk':
+                return round(value / 1.609344, 1)
+        return value
 
     def setDriver(self, driver, value):
         if (driver == 'GV0'):
-            if (self.units != 'metric'):
-                value = round(value / 1.609344, 1)
+            value = self.convert(value)
         super(LightningNode, self).setDriver(driver, value, report=True, force=True)
 
 class weather_data_handler(http.server.BaseHTTPRequestHandler):
     node_map = {}
     nodes = {}
+
+    def log_message(self, format, *args):
+        LOGGER.info("%s" % format%args)
+        return
 
     # handle get requests
     def do_GET(self):
@@ -678,9 +748,7 @@ class weather_data_handler(http.server.BaseHTTPRequestHandler):
         # data[key] = space separated list
         # Use node-value to field # mapping
         for key in data:
-            #LOGGER.debug('key %s = %s' % (key, data[key]))
             fields = data[key][0].split(' ')
-            LOGGER.info('Data has %d fields' % len(fields))
             for f in self.node_map:
                 try:
                     i = int(f)
@@ -690,7 +758,9 @@ class weather_data_handler(http.server.BaseHTTPRequestHandler):
                 m = self.node_map[f]
 
                 try:
-                    LOGGER.info('Field %s maps to %s / %s  set %s' % (f, m['node'], m['driver'], fields[i]))
+                    LOGGER.info(' - Set %s driver %s to %s' % 
+                        (self.node_map[f]['node'], self.node_map[f]['driver'], fields[i]))
+
                     self.nodes[m['node']].setDriver(m['driver'], float(fields[i]))
                 except Exception as e:
                     LOGGER.debug('  - setDriver failed %s  -> %s %s' % (f, m['node'], str(e)))
@@ -711,7 +781,7 @@ class weather_data_handler(http.server.BaseHTTPRequestHandler):
         for key in data:
             if key in self.node_map:
                 m = self.node_map[key]
-                LOGGER.debug('Set %s driver %s to %s' % 
+                LOGGER.info(' - Set %s driver %s to %s' % 
                         (self.node_map[key]['node'], self.node_map[key]['driver'], data[key]))
                 self.nodes[m['node']].setDriver(m['driver'], float(data[key][0]))
             else:

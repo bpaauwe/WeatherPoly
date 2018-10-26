@@ -4,7 +4,8 @@ The WeatherPoly node server has the following user configuration
 parameters:
 
 - Port : The TCP port to listen on for connections from weather software.
-- Units : If the data received is in metric units, changing this will change how the data is displayed. Valid settings are: 'metric', 'US', or 'UK' units.
+- Units : The units used to display the data. Valid settings are: 'metric', 'us', or 'uk'. The default is 'metric'
+- IncomingUnits: The units used by the data provider. Valid settings are 'metric', 'us', and 'uk'. Default is 'metric'.
 
 A mapping between the incoming data fields and the node server's nodes must be configured.  The key is a node and data type combination and the value represents the incoming data field. How a data field is represented depends on the weather software.
 
