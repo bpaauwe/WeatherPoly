@@ -179,6 +179,10 @@ The Weather Poly nodeserver keeps track of the version number and when a profile
 
 # Release Notes
 
+- 0.1.2 10/26/2018
+   - Fix editors for temperature and rain
+   - Add incoming unit config and conversions
+   - Add MeteoBridge configuration help
 - 0.1.1 10/11/2018
    - Fix nodedef creation
    - Trap errors

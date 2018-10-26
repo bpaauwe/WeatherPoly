@@ -13,8 +13,8 @@
     	{
     		"title": "WeatherPoly: Weather Data",
     		"author": "Bob Paauwe",
-    		"version": "0.1.1",
-    		"date": "October 11, 2018",
+    		"version": "0.1.2",
+    		"date": "October 26, 2018",
     		"source": "https://github.com/bpaauwe/WeatherPoly",
             "license": "https://github.com/bpaauwe/WeatherPoly/LICENSE"
 		}
