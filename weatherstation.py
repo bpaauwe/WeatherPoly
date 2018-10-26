@@ -299,7 +299,7 @@ class Controller(polyinterface.Controller):
             LOGGER.info('MAPPING %s to %s' % (vval, key))
 
             if vmap[0] == 'temperature':
-                self.temperature_list[vmap[1]] = 'TEMP_F' if self.units == 'us' else 'TEMP_C'
+                self.temperature_list[vmap[1]] = 'I_TEMP_F' if self.units == 'us' else 'I_TEMP_C'
                 self.map[vval] = {
                         'node': 'temperature',
                         'driver': write_profile.TEMP_DRVS[vmap[1]],
@@ -340,7 +340,7 @@ class Controller(polyinterface.Controller):
                 if 'rate' in vmap[1]:
                     self.rain_list[vmap[1]] = 'I_MMHR' if self.units == 'metric' else 'I_INHR'
                 else:
-                    self.rain_list[vmap[1]] = 'I_MM' if self.units == 'metric' else 'I_INCH'
+                    self.rain_list[vmap[1]] = 'I_MM' if self.units == 'metric' else 'I_INCHES'
                 self.map[vval] = {
                         'node': 'rain',
                         'driver': write_profile.RAIN_DRVS[vmap[1]],
