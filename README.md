@@ -179,6 +179,9 @@ The Weather Poly nodeserver keeps track of the version number and when a profile
 
 # Release Notes
 
+- 0.1.3 11/12/2018
+   - Clear node lists before creating the nodes to add and node mappings
+   - Map Cumulus pressure trend strings to node integers
 - 0.1.2 10/26/2018
    - Fix editors for temperature and rain
    - Add incoming unit config and conversions
