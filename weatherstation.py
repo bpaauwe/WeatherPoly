@@ -28,6 +28,7 @@ class Controller(polyinterface.Controller):
         self.address = 'weather'
         self.primary = self.address
         self.port = 8080
+        self_server_running = False
         self.units = ""
         self.in_units = ""
         self.temperature_list = {}
@@ -45,16 +46,19 @@ class Controller(polyinterface.Controller):
     def process_config(self, config):
         # this seems to get called twice for every change, why?
         # What does config represent?
-        LOGGER.info("Configuration Change...")
-        if 'customParams' in config:
+        if 'customParams' in config and self.myConfig:
             if config['customParams'] != self.myConfig:
-                LOGGER.info("Found difference with saved configuration.")
+                LOGGER.debug("Found difference with saved configuration.")
                 self.removeNoticesAll()
                 self.set_configuration(config)
                 self.map_nodes(config)
                 self.discover()
-                if config['customParams']['Port'] != self.myConfig['Port']:
-                    self.addNotice("Restart node server for Port change to take effect")
+                try:
+                    if config['customParams']['Port'] != self.myConfig['Port']:
+                        self.addNotice("Restart node server for Port change to take effect")
+                except:
+                    self.addNotice("Must have a Port parameter set.")
+
                 self.myConfig = config['customParams']
 
     def start(self):
@@ -226,10 +230,12 @@ class Controller(polyinterface.Controller):
 
     def delete(self):
         self.stopping = True
+        self.server.Stop = True
         LOGGER.info('Removing WeatherPoly node server.')
 
     def stop(self):
         self.stopping = True
+        self.server.Stop = True
         self.server.socket.close()
         LOGGER.debug('Stopping WeatherPoly node server.')
 
@@ -287,6 +293,13 @@ class Controller(polyinterface.Controller):
         LOGGER.info("Trying to create a mapping")
 
         self.map.clear()
+        self.temperature_list.clear()
+        self.humidity_list.clear()
+        self.pressure_list.clear()
+        self.wind_list.clear()
+        self.rain_list.clear()
+        self.light_list.clear()
+        self.lightning_list.clear()
 
         for key in config['customParams']:
             if not '-' in key:
@@ -394,10 +407,15 @@ class Controller(polyinterface.Controller):
             #self.server = http.server.HTTPServer(('', self.port), weather_data_handler)
             self.server = Server(('', self.port), weather_data_handler)
             LOGGER.info('Started web server on port %d' % self.port)
+            self_server_running = True
             self.server.serve_forever(self.map, self.nodes)
-        except:
+        except Exception as e:
             LOGGER.info('Web server failed to start.')
-            self.server.socket.close()
+            LOGGER.debug(str(e))
+            #self.server.socket.close()
+            self_server_running = False
+            self.addNotice("Failed to start weather monitoring service.")
+            
 
     def SetUnits(self, u, i):
         self.units = u
@@ -790,10 +808,17 @@ class weather_data_handler(http.server.BaseHTTPRequestHandler):
 
 
 class Server(http.server.HTTPServer):
+    stop = False
+
     def serve_forever(self, cfg_map, nodes):
         self.RequestHandlerClass.node_map = cfg_map
         self.RequestHandlerClass.nodes = nodes
-        http.server.HTTPServer.serve_forever(self)
+        while not self.stop:
+            http.server.HTTPServer.handle_request(self)
+        #http.server.HTTPServer.serve_forever(self)
+
+    def stop_server(self):
+        self.stop = True
 
 if __name__ == "__main__":
     try:
@@ -805,6 +830,7 @@ if __name__ == "__main__":
         """
         Starts MQTT and connects to Polyglot.
         """
+        LOGGER.info('Calling Controller to create controller node')
         control = Controller(polyglot)
         """
         Creates the Controller Node and passes in the Interface
