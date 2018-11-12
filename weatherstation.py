@@ -801,7 +801,23 @@ class weather_data_handler(http.server.BaseHTTPRequestHandler):
                 m = self.node_map[key]
                 LOGGER.info(' - Set %s driver %s to %s' % 
                         (self.node_map[key]['node'], self.node_map[key]['driver'], data[key]))
-                self.nodes[m['node']].setDriver(m['driver'], float(data[key][0]))
+
+                # If pressure node trend driver the data isn't an integer but
+                # a string.  Need to covnert the string to the proper int
+                # representation of trend: 1, 2, 3
+                if m['node'] == 'pressure' and m['driver'] == 'trend':
+                    if data[key][0] == 'Rising':
+                        val = 2
+                    elif data[key][0] == 'Falling':
+                        val = 0
+                    elif data[key][0] == 'Steady':
+                        val = 1
+                    else:
+                        val = 3
+                else:
+                    val = float(data[key][0])
+
+                self.nodes[m['node']].setDriver(m['driver'], val)
             else:
                 LOGGER.info('map has %d entries, but not %s' % (len(self.node_map), key))
         return
