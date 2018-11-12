@@ -805,7 +805,7 @@ class weather_data_handler(http.server.BaseHTTPRequestHandler):
                 # If pressure node trend driver the data isn't an integer but
                 # a string.  Need to covnert the string to the proper int
                 # representation of trend: 1, 2, 3
-                if m['node'] == 'pressure' and m['driver'] == 'trend':
+                if m['node'] == 'pressure' and m['driver'] == 'GV1':
                     if data[key][0] == 'Rising':
                         val = 2
                     elif data[key][0] == 'Falling':
