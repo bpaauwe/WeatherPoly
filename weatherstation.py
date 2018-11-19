@@ -812,8 +812,16 @@ class weather_data_handler(http.server.BaseHTTPRequestHandler):
                         val = 0
                     elif data[key][0] == 'Steady':
                         val = 1
-                    else:
+                    elif data[key][0] == 'Rising slowly':
                         val = 3
+                    elif data[key][0] == 'Rising rapidly':
+                        val = 4
+                    elif data[key][0] == 'Falling slowly':
+                        val = 5
+                    elif data[key][0] == 'Falling rapidly':
+                        val = 6
+                    else:
+                        val = 7
                 else:
                     val = float(data[key][0])
 

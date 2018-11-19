@@ -88,6 +88,11 @@ EN_RAINTYPE-3 = Rain & Hail
 EN_TREND-0 = Falling
 EN_TREND-1 = Steady
 EN_TREND-2 = Rising
+EN_TREND-3 = Rising Slowly
+EN_TREND-4 = Rising Rapidly
+EN_TREND-5 = Falling Slowly
+EN_TREND-6 = Falling Rapidly
+EN_TREND-7 = Unknown
 
 EN_CARDINAL-0 = N
 EN_CARDINAL-1 = NNE
