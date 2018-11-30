@@ -759,6 +759,9 @@ class weather_data_handler(http.server.BaseHTTPRequestHandler):
             elif 'cumulus' in c[0]:
                 # Custom Cumulus template
                 self.cumulus(data)
+            elif 'acuparse' in c[0]:
+                # Custom Acuparse template
+                self.acuparse(data)
         return
 
     def meteobridge(self, data):
@@ -829,6 +832,22 @@ class weather_data_handler(http.server.BaseHTTPRequestHandler):
             else:
                 LOGGER.info('map has %d entries, but not %s' % (len(self.node_map), key))
         return
+
+    def acuparse(self, data):
+        # map key's to configuration node/driver
+        LOGGER.debug('Got some acuparse data')
+        for key in data:
+            if key in self.node_map:
+                m = self.node_map[key]
+                LOGGER.info(' - Set %s driver %s to %s' % 
+                        (self.node_map[key]['node'], self.node_map[key]['driver'], data[key]))
+
+                val = float(data[key][0])
+                self.nodes[m['node']].setDriver(m['driver'], val)
+            else:
+                LOGGER.info('map has %d entries, but not %s' % (len(self.node_map), key))
+        return
+
 
 
 class Server(http.server.HTTPServer):
