@@ -179,6 +179,8 @@ The Weather Poly nodeserver keeps track of the version number and when a profile
 
 # Release Notes
 
+- 0.1.5 11/30/2018
+   - Add support for acuparse data. https://github.com/acuparse/acuparse allows data collection form Acurite weather stations.
 - 0.1.4 11/19/2018
    - Add rising slowly/rapidly and falling slowly/rapidly to pressure trend.
 - 0.1.3 11/12/2018
