@@ -742,6 +742,21 @@ class weather_data_handler(http.server.BaseHTTPRequestHandler):
 
         return
 
+    def do_POST(self):
+        message = "<head></head><body>Successful data submission</body>\n"
+
+        content_length = int(self.headers['content-Length'])
+        post_data = self.rfile.read(content_length)
+
+        process_post_data(self.path, post_data)
+
+        self.send_response(200)  # OK
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+        self.wfile.write(message.encode('utf_8'))
+
+        return
+
     def process_data(self, path):
         # split the path into path/query components
         c = path.split('?')
@@ -762,6 +777,14 @@ class weather_data_handler(http.server.BaseHTTPRequestHandler):
             elif 'acuparse' in c[0]:
                 # Custom Acuparse template
                 self.acuparse(data)
+        return
+
+    def process_post_data(self, path, data):
+        c = path.split('?')
+        if len(c) > 1:
+            #data = urllib.parse.parse_qs(c[1])
+            if 'weewx' in c[0]:
+                self.cumulus(data)
         return
 
     def meteobridge(self, data):
