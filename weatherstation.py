@@ -780,11 +780,8 @@ class weather_data_handler(http.server.BaseHTTPRequestHandler):
         return
 
     def process_post_data(self, path, data):
-        c = path.split('?')
-        if len(c) > 1:
-            #data = urllib.parse.parse_qs(c[1])
-            if 'weewx' in c[0]:
-                self.cumulus(data)
+        if 'weewx' in path:
+            self.cumulus(data)
         return
 
     def meteobridge(self, data):
