@@ -781,7 +781,7 @@ class weather_data_handler(http.server.BaseHTTPRequestHandler):
 
     def process_post_data(self, path, data):
         if 'weewx' in path:
-            self.cumulus(data)
+            self.meteobridge(data)
         return
 
     def meteobridge(self, data):
