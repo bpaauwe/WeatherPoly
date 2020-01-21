@@ -179,6 +179,8 @@ The Weather Poly nodeserver keeps track of the version number and when a profile
 
 # Release Notes
 
+- 0.1.8 01/21/2020
+   - Fix error in process_post_data function call.
 - 0.1.7 01/20/2020
    - Add support for POST requests.
    - Parse WeeWX post request with cumulus realtime data in the body

@@ -748,7 +748,7 @@ class weather_data_handler(http.server.BaseHTTPRequestHandler):
         content_length = int(self.headers['content-Length'])
         post_data = self.rfile.read(content_length)
 
-        process_post_data(self.path, post_data)
+        self.process_post_data(self.path, post_data)
 
         self.send_response(200)  # OK
         self.send_header("Content-type", "text/html")
