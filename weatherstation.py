@@ -781,7 +781,7 @@ class weather_data_handler(http.server.BaseHTTPRequestHandler):
 
     def process_post_data(self, path, data):
         if 'weewx' in path:
-            self.meteobridge(data)
+            self.weewx(data)
         return
 
     def meteobridge(self, data):
@@ -814,6 +814,22 @@ class weather_data_handler(http.server.BaseHTTPRequestHandler):
 
     def weewx(self, data):
         LOGGER.debug('Got some WeeWX data')
+        fields = data.split(' ')
+        for f in self.node_map:
+            try:
+                i = int(f)
+            except: 
+                continue
+
+            m = self.node_map[f]
+
+            try:
+                LOGGER.info(' - Set %s driver %s to %s' % 
+                    (self.node_map[f]['node'], self.node_map[f]['driver'], fields[i]))
+
+                self.nodes[m['node']].setDriver(m['driver'], float(fields[i]))
+            except Exception as e:
+                LOGGER.debug('  - setDriver failed %s  -> %s %s' % (f, m['node'], str(e)))
         return
 
     def cumulus(self, data):
