@@ -814,7 +814,7 @@ class weather_data_handler(http.server.BaseHTTPRequestHandler):
 
     def weewx(self, data):
         LOGGER.debug('Got some WeeWX data')
-        fields = data.split(' ')
+        fields = data.decode().split(' ')
         for f in self.node_map:
             try:
                 i = int(f)
