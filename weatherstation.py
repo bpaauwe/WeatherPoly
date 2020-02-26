@@ -63,6 +63,7 @@ class Controller(polyinterface.Controller):
 
     def start(self):
         LOGGER.info('Starting WeatherPoly Node Server')
+        self.set_logging_level()
         self.check_params()
         LOGGER.info('Calling discover')
         self.discover()
@@ -421,6 +422,37 @@ class Controller(polyinterface.Controller):
         self.units = u
         self.units_in = i
 
+    def get_saved_log_level(self):
+        if 'customData' in self.polyConfig:
+            if 'level' in self.polyConfig['customData']:
+                return self.polyConfig['customData']['level']
+
+        return 0
+
+    def save_log_level(self, level):
+        level_data = {
+            'level': level,
+            }
+        self.poly.saveCustomData(level_data)
+
+    def set_logging_level(self, level=None):
+        if level is None:
+            try:
+                level = self.get_saved_log_level()
+            except:
+                LOGGER.error('set_logging_level: get saved log level failed.')
+
+            if level is None:
+                level = 30
+
+            level = int(level)
+        else:
+            level = int(level['value'])
+
+        self.save_log_level(level)
+        LOGGER.info('set_logging_level: Setting log level to %d' % level)
+        LOGGER.setLevel(level)
+
 
     id = 'WeatherPoly'
     name = 'WeatherPolyPoly'
@@ -431,7 +463,8 @@ class Controller(polyinterface.Controller):
     commands = {
         'DISCOVER': discover,
         'UPDATE_PROFILE': update_profile,
-        'REMOVE_NOTICES_ALL': remove_notices_all
+        'REMOVE_NOTICES_ALL': remove_notices_all,
+        'DEBUG': set_logging_level,
     }
     # Hub status information here: battery and rssi values.
     drivers = [

@@ -4,6 +4,7 @@ ND-WeatherPoly-ICON = Weather
 CMD-ctl-DISCOVER-NAME = Re-Discover
 CMD-ctl-UPDATE_PROFILE-NAME = Update Profile
 CMD-ctl-REMOVE_NOTICES_ALL-NAME = Remove Notices
+CMD-ctl-DEBUG-NAME = Log Level
 ST-ctl-ST-NAME = NodeServer Online
 ST-ctl-GV0-NAME = Battery
 ST-ctl-GV1-NAME = Battery
@@ -127,4 +128,11 @@ EN_WIND_DIRECTION-12 = W
 EN_WIND_DIRECTION-13 = WNW
 EN_WIND_DIRECTION-14 = NW
 EN_WIND_DIRECTION-15 = NNW
+
+DBG-0 = Off
+DBG-10 = Debug
+DBG-20 = Info
+DBG-30 = Warning
+DBG-40 = Error
+DBG-50 = Critical
 
