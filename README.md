@@ -179,6 +179,8 @@ The Weather Poly nodeserver keeps track of the version number and when a profile
 
 # Release Notes
 
+- 0.1.10 03/16/2020
+   - Handle cardinal wind direction form Cumulus
 - 0.1.9 02/25/2020
    - Add command to set log level
 - 0.1.8 01/21/2020
