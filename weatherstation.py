@@ -865,6 +865,17 @@ class weather_data_handler(http.server.BaseHTTPRequestHandler):
                 LOGGER.debug('  - setDriver failed %s  -> %s %s' % (f, m['node'], str(e)))
         return
 
+    # convert cardinal direction to degrees
+    def cardinal(self, direction):
+        dirs = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+            "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"]
+        try:
+            ix = dirs.index(direction)
+            return ix * 22.5
+        except:
+            LOGGER.error('Cannot convert ' + direction + ' to degrees')
+            return 0
+
     def cumulus(self, data):
         # map key's to configuration node/driver
         LOGGER.debug('Got some cumulus data')
@@ -894,6 +905,16 @@ class weather_data_handler(http.server.BaseHTTPRequestHandler):
                         val = 6
                     else:
                         val = 7
+                elif m['node'] == 'wind' and m['driver'] == 'GV0': # direction
+                    if data[key][0].isnumeric():
+                        val = float(data[key][0])
+                    else:
+                        val = self.cardinal(data[key][0])
+                elif m['node'] == 'wind' and m['driver'] == 'GV2': # gust dir
+                    if data[key][0].isnumeric():
+                        val = float(data[key][0])
+                    else:
+                        val = self.cardinal(data[key][0])
                 else:
                     val = float(data[key][0])
 
