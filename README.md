@@ -179,6 +179,8 @@ The Weather Poly nodeserver keeps track of the version number and when a profile
 
 # Release Notes
 
+- 0.1.11 07/02/2020
+   - Return the converted rain value when conversion is necessary.
 - 0.1.10 03/16/2020
    - Handle cardinal wind direction form Cumulus
 - 0.1.9 02/25/2020
