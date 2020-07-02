@@ -702,10 +702,10 @@ class PrecipitationNode(polyinterface.Node):
     def convert(self, value):
         if self.units_in == 'us':
             if self.units != 'us':
-                round(value / 0.03937, 2)
+                return round(value / 0.03937, 2)
         else:
             if self.units == 'us':
-                round(value * 0.03937, 2)
+                return round(value * 0.03937, 2)
         return value
 
         
