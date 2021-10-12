@@ -132,7 +132,7 @@ def write_profile(logger, temperature_list, humidity_list, pressure_list,
         try:
             os.makedirs("profile/nodedef")
         except:
-            LOGGER.error('unable to create node definition directory.')
+            logger.error('unable to create node definition directory.')
 
     try:
         nodedef = open("profile/nodedef/nodedefs.xml", "w")
@@ -218,7 +218,7 @@ def write_profile(logger, temperature_list, humidity_list, pressure_list,
 
         nodedef.close()
     except:
-        LOGGER.error('Failed to write node definition file.')
+        logger.error('Failed to write node definition file.')
 
     # Update the profile version file with the info from server.json
     with open(VERSION_FILE, 'w') as outfile:

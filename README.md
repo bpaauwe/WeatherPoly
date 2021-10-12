@@ -179,6 +179,10 @@ The Weather Poly nodeserver keeps track of the version number and when a profile
 
 # Release Notes
 
+- 0.0.12 10/12/2021
+   - Fix issue with log level control
+   - Fix logging in write_profile
+   - Report webserver failure as error
 - 0.1.11 07/02/2020
    - Return the converted rain value when conversion is necessary.
 - 0.1.10 03/16/2020

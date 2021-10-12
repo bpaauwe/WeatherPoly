@@ -411,8 +411,7 @@ class Controller(polyinterface.Controller):
             self_server_running = True
             self.server.serve_forever(self.map, self.nodes)
         except Exception as e:
-            LOGGER.info('Web server failed to start.')
-            LOGGER.debug(str(e))
+            LOGGER.error('Web server failed to start. {}'.format(e))
             #self.server.socket.close()
             self_server_running = False
             self.addNotice("Failed to start weather monitoring service.")
